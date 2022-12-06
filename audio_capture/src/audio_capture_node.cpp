@@ -9,6 +9,8 @@
 #include "audio_common_msgs/msg/audio_data.hpp"
 #include "audio_common_msgs/msg/audio_info.hpp"
 
+#include "std_msgs/msg/int8_multi_array.hpp"
+
 namespace audio_capture
 {
   class AudioCaptureNode: public rclcpp::Node
@@ -51,7 +53,8 @@ namespace audio_capture
         this->declare_parameter<std::string>("device", "");
         this->get_parameter("device", device);
 
-        _pub = this->create_publisher<audio_common_msgs::msg::AudioData>("audio", 10);
+        // _pub = this->create_publisher<audio_common_msgs::msg::AudioData>("audio", 10);
+        _pub = this->create_publisher<std_msgs::msg::Int8MultiArray>("audio", 1);
         _pub_info = this->create_publisher<audio_common_msgs::msg::AudioInfo>("audio_info", 1);
 
         _loop = g_main_loop_new(NULL, false);
@@ -179,7 +182,12 @@ namespace audio_capture
         exit(code);
       }
 
-      void publish( const audio_common_msgs::msg::AudioData &msg )
+      // void publish( const audio_common_msgs::msg::AudioData &msg )
+      // {
+      //   _pub->publish(msg);
+      // }
+
+      void publish(const std_msgs::msg::Int8MultiArray &msg)
       {
         _pub->publish(msg);
       }
@@ -194,7 +202,8 @@ namespace audio_capture
 
         GstBuffer *buffer = gst_sample_get_buffer(sample);
 
-        audio_common_msgs::msg::AudioData msg;
+        //audio_common_msgs::msg::AudioData msg;
+        std_msgs::msg::Int8MultiArray msg;
         gst_buffer_map(buffer, &map, GST_MAP_READ);
         msg.data.resize( map.size );
 
@@ -224,7 +233,8 @@ namespace audio_capture
       }
 
     private:
-      rclcpp::Publisher<audio_common_msgs::msg::AudioData>::SharedPtr _pub;
+      // rclcpp::Publisher<audio_common_msgs::msg::AudioData>::SharedPtr _pub;
+      rclcpp::Publisher<std_msgs::msg::Int8MultiArray>::SharedPtr _pub;
       rclcpp::Publisher<audio_common_msgs::msg::AudioInfo>::SharedPtr _pub_info;
 
       boost::thread _gst_thread;
